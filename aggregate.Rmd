@@ -1,31 +1,47 @@
-# install the package
+---
+title: "..."
+author: "Group 7"
+date: "2022-08-24"
+output: pdf_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(tidyverse)
+require('readxl')
+require('tidyverse')
+require("lubridate")
+require("dplyr")
+require("imputeTS")
+require("corrplot")
+```
+
+Setup cran repository url
+```{r}
+r = getOption("repos")
+r["CRAN"] = "http://cran.us.r-project.org"
+options(repos = r)
+```
+
+Install the required packages
+```{r, results='hide'}
 #install.packages('readxl')
 #install.packages('tidyverse')
 #install.packages("lubridate")
 #install.packages("dplyr")
 #install.packages("imputeTS")
 #install.packages("corrplot")
+```
 
 
-#load libraries
-library("readxl")
-library("tidyverse")
-library("lubridate")
-#library("dplyr")
-library("imputeTS")
-#library("ggplot2")
-library("corrplot")
-
-
-# set YOUR current R working directory to the specific path.
+Set your current R working directory to the specific path.
+```{r}
 path = dirname(rstudioapi::getSourceEditorContext()$path)
 setwd(path) 
-#will print out the current directory.
-getwd()  
+```
 
-  
-# Read data from different files
+Read data from different files
+```{r, results=FALSE, warning=FALSE, comment=FALSE}
 data_months <- read.csv("data/dataset/months.csv")
 cash_rate_data <- read.csv("data/dataset/Cash rate -RBA.csv")
 loan_commitments <- read.csv("data/dataset/New loan commitments total housing.csv")
@@ -34,20 +50,26 @@ dwellings_mean_price <- read_excel("data/dataset/Mean price of residential dwell
 residential_dwellings_number <- read_excel("data/dataset/Mean price of residential dwellings_Australia.xlsx", sheet = "Data1")
 earnings <- read_excel("data/dataset/Average Weekly Earnings.xlsx", sheet = "Data1")
 property_price_index <- read_excel("data/dataset/Residential Property Price Index.xlsx", sheet = "Data1")
+```
 
-#view the object type
+You can view the object type
+```{r, results='hide'}
 class(loan_commitments)
 class(labour_force_data)
+```
 
-# Retrieve relevant columns
+Retrieve relevant columns
+```{r, results='hide'}
 loan_commitments <- loan_commitments[,c(1,2)]
 labour_force_data <- labour_force_data[,c(1,67)]
 dwellings_mean_price <- dwellings_mean_price[,c(1,37)]
 residential_dwellings_number <- residential_dwellings_number[,c(1,46)]
 earnings <- earnings[,c(1,9)]
 property_price_index <- property_price_index[,c(1,10)]
+```
 
-#rename columns
+Rename columns
+```{r, echo=FALSE, cache=FALSE, results=FALSE, warning=FALSE, comment=FALSE, warning=FALSE}
 colnames(loan_commitments)
 loan_commitments <- rename(loan_commitments, Date = "X",Total_loans = "Total..ex..refinancing....b.")
 colnames(labour_force_data)
@@ -60,27 +82,24 @@ colnames(earnings)
 earnings <- rename(earnings, Date = "...1", total_earnings = "Earnings; Persons; Full Time; Adult; Total earnings ;")
 colnames(property_price_index)
 property_price_index <- rename(property_price_index, Date = "...1", price_index = "Residential Property Price Index ;  Weighted average of eight capital cities ;")
+```
 
-#Skip details rows
+Skip details rows
+```{r}
 #labour_force_data <- labour_force_data[-c(1:9),]
 #dwellings_mean_price <- dwellings_mean_price[-c(1:9),]
+```
 
-#change date format
+Change date format so it can be manipulated in R
+```{r, results='hide'}
 str(data_months)
 data_months$Date <- dmy(data_months$Date)
 cash_rate_data$Date <- dmy(cash_rate_data$Date)
 loan_commitments$Date <- dmy(loan_commitments$Date)
+```
 
-#labour_force_data$Date <- dmy(labour_force_data$Date)
-#dwellings_mean_price$Date <- dmy(dwellings_mean_price$Date)
-#residential_dwellings_number$Date <- dmy(residential_dwellings_number$Date)
-#data_months$Date <- format(data_months$Date, "%y-%m-%d")
-#earnings$Date <- dmy(earnings$Date)
-#property_price_index$Date <- dmy(property_price_index$Date)
-
-
-#create dataset
-# Merge dataframes with dplyr
+Create dataset by merging dataframes with dplyr
+```{r}
 merge_dataset <- left_join(data_months, cash_rate_data, by='Date') %>%
                     left_join(., labour_force_data, by='Date') %>%
                     left_join(., dwellings_mean_price, by='Date') %>%
@@ -88,16 +107,29 @@ merge_dataset <- left_join(data_months, cash_rate_data, by='Date') %>%
                     left_join(., earnings, by='Date') %>%
                     left_join(., property_price_index, by='Date') %>%
                     left_join(., loan_commitments, by='Date')
+```
 
-## UNDERSTANDING THE DATA
+UNDERSTANDING THE DATA
 
-# The following graph shows loan commitments has dropped from mid 2017 and the pattern
-
+The following graph shows loan commitments has dropped from mid 2017 and the pattern continues till mid 2019. After that, the loan commitments again increased for some time and dropped till few months of 2020. After that, the loan commitments took a sharp incline.
+```{r}
 ggplot(merge_dataset) +
   geom_line(aes(x=Date, y=Total_loans)) 
+```
 
+The cash rate pattern seems quite opposite though. The government seems to have gradually reducing cash rate till 2022 but slightly increasing after 2022.
+
+```{r}
 ggplot(merge_dataset) +
   geom_line(aes(x=Date, y=Cash)) 
+```
 
+Unemployment rate seems to be highest in mid 2020. Can it be people are more free at that time to buy houses? See below
+
+```{r}
 ggplot(merge_dataset) +
   geom_line(aes(x=Date, y=Unemployment_rate)) 
+```
+
+
+
