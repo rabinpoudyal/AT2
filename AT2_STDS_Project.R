@@ -37,7 +37,7 @@ library(car)
 
 
 # set working directory.
-path = "C:/"
+path = "C:/Users/amedi/OneDrive/Escritorio/UTS/STDS_statistical_thinking_for_data_science/AT2/project_report/"
 setwd(path) 
 getwd()
 
@@ -406,7 +406,7 @@ car::vif(inv_mod)
 #//https://www.datacamp.com/tutorial/pca-analysis-r //https://www.r-bloggers.com/2016/02/principal-component-analysis-using-r/
 #https://www.analyticsvidhya.com/blog/2016/03/pca-practical-guide-principal-component-analysis-python/
 #model applying PCA
-pca <- prcomp(data[,c(3:6)], center = TRUE,scale. = TRUE)
+pca <- prcomp(data[,c(2:6)], center = TRUE,scale. = TRUE)
 
 summary(pca) #Importance of components
 attributes(pca)
@@ -417,7 +417,10 @@ pca$scale #use for normalization
 x <- pca$x
 
 #joining the whole data
-data_pca <- data.frame(data[,c(1:2)], x[,c(1:4)], data[,c("Total_loans")] )
+#data_pca <- data.frame(data[,c(1:2)], x[,c(1:4)], data[,c("Total_loans")] )
+
+data_pca <- data.frame(x[,c(1:5)], data[,c("Total_loans")] )
+
 
 #rename column
 colnames(data_pca)
@@ -426,15 +429,27 @@ data_pca <- rename(
   Total_loans = "data...c..Total_loans...")
 #,Date = "data...c.1.1..")
 
+# correlations between the principal components and the original variables
+#//https://online.stat.psu.edu/stat505/lesson/11/11.4
+#//https://reader.elsevier.com/reader/sd/pii/S0169743901002039?token=6588695C5B8FF0C572ADC0B7AE588ACC1A2D170382E23C05124DEB9FFA67F85EC4129732D75758328800CE44D1682D93&originRegion=us-east-1&originCreation=20220928072020
+#https://www.sciencedirect.com/science/article/pii/S0169743901002039
+full_data <- data.frame(data[,c(2:6)], x[,c(1:5)])
+
+corr_matrix = cor(full_data)
+corrplot(corr_matrix, method = 'number', type = 'lower', insig='blank',
+         addCoef.col ='black', number.cex = 0.8, order = 'AOE', diag=FALSE)
+
+
 #formulas pca
 formula_pca1 = Total_loans ~ Cash  + PC1 + PC2 + PC3 + PC4
 formula_pca2 = Total_loans ~ Cash  + PC2 + PC3 + PC4
-formula_pca3 = Total_loans ~ PC1 + PC2 + PC3 + PC4 + PC5
+formula_pca3 = Total_loans ~ PC1 + PC2 + PC3 + PC4 + PC5 # selected formula
+formula_pca4 = ln(Total_loans) ~ PC1 + PC2 + PC3 + PC4 + PC5
 
-############gamma + pca
+############gamma + pca // selected model
 #training model
 gamma_mod_pca = glm(
-  formula = formula_pca2,
+  formula = formula_pca3,
   family = Gamma, 
   data = data_pca)
 
@@ -449,7 +464,7 @@ car::vif(gamma_mod_pca)
 
 #########inverse gaussian + pca
 inv_mod_pca = glm(
-  formula = formula_pca1,
+  formula = formula_pca3,
   family = inverse.gaussian, 
   data = data_pca)
 
@@ -461,7 +476,6 @@ plot(inv_mod_pca)
 
 #Checking for multicollinearity
 car::vif(inv_mod_pca)
-
 
 
 
