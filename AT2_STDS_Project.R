@@ -32,10 +32,12 @@ library(COMPoissonReg)
 library(DGLMExtPois)
 library(bbmle)
 
+library(car)
+
 
 
 # set working directory.
-path = "C:/github_project/"
+path = "C:/"
 setwd(path) 
 getwd()
 
@@ -155,7 +157,7 @@ merge_dataset <- filter(merge_dataset, Date >= "2012-01-01")
 
 ################################ dataset we are going to use
 
-#saving the data // chose one of the datasets to the EDA and the model
+#saving the data // choose one of the datasets to the EDA and the model
 clean_dataset <- merge_dataset
 #clean_dataset <- missing_val_dataset
 
@@ -203,11 +205,11 @@ ggplot(clean_dataset, aes(x=price_index, y=Total_loans)) + geom_point() + labs(t
 
 #Relationship between Cash rate and Total loans
 clean_dataset %>%
-  ggplot(aes(Cash, Total_loans )) + geom_point(mapping = aes(x =Cash , y = Total_loans)) +geom_smooth(color ="Red") +labs(title = "Decreasing Cash Rate resulting in increased \nnumber of loans from 2012-2022 ")
+  ggplot(aes(Cash, Total_loans )) + geom_point(mapping = aes(x =Cash , y = Total_loans)) +geom_smooth(color ="Blue") +labs(title = "Decreasing Cash Rate resulting in increased \nnumber of loans from 2012-2022 ")
 
 #Relationship between total earnings and Total loans
 clean_dataset %>%
-  ggplot(aes(total_earnings, Total_loans )) + geom_point(mapping = aes(x =total_earnings , y = Total_loans, color = Date)) +geom_smooth(color ="Pink") +labs(title = "Increasing Total Earnings results in increase \nin number of loans from 2012-2022 ")
+  ggplot(aes(total_earnings, Total_loans )) + geom_point(mapping = aes(x =total_earnings , y = Total_loans, color = Date)) +geom_smooth(color ="Red") +labs(title = "Increasing Total Earnings results in increase \nin number of loans from 2012-2022 ")
 
 
 #Relationship between cash rate and mean price
@@ -242,15 +244,235 @@ ggpairs(data)
 #view columns names
 colnames(data)
 
-#formulas approaches for the models
-formula_mod1 = Total_loans ~ Mean_price + price_index + Cash + dwellings_number + Unemployment_rate + total_earnings
-formula_mod2 = Total_loans ~ Mean_price + Cash + dwellings_number + Unemployment_rate + total_earnings
-formula_mod3 = Total_loans ~ Mean_price + Cash + dwellings_number
-formula_mod4 = Total_loans ~ Cash
-formula_mod5 = Total_loans ~ dwellings_number
-formula_mod6 = Total_loans ~ Mean_price
-formula_mod7 = Total_loans ~ Cash + dwellings_number
+#formulas - approaches for the models
+formula1 = Total_loans ~ Mean_price + price_index + Cash + dwellings_number + Unemployment_rate + total_earnings
+formula2 = Total_loans ~ Mean_price + Cash + dwellings_number + Unemployment_rate + total_earnings #full
+formula3 = Total_loans ~ Cash + Unemployment_rate + total_earnings + Mean_price + price_index
+formula4 = Total_loans ~ Mean_price + Cash + dwellings_number + Unemployment_rate
+formula5 = Total_loans ~ Mean_price + Cash + dwellings_number + total_earnings
+formula6 = Total_loans ~ Mean_price + Cash + dwellings_number
+formula7 = Total_loans ~ Mean_price + Cash
+formula8 = Total_loans ~ Cash + dwellings_number
+formula9 = Total_loans ~ Mean_price
+formula10 = Total_loans ~ Cash
+formula11 = Total_loans ~ dwellings_number
+formula12 = Total_loans ~ total_earnings
+formula13 = Total_loans ~ Unemployment_rate
+formula14 = log(Total_loans) ~ Mean_price + Cash + dwellings_number + total_earnings
+formula15 = Total_loans ~ Mean_price + Cash + Unemployment_rate
+formula16 = Total_loans ~ Cash + Unemployment_rate
+formula17 = Total_loans ~ Mean_price + Cash  + Unemployment_rate + total_earnings
 
+#//formulas to highlight formula2 and formula16
+
+####### multilinear regression
+
+linear_mod <- lm(formula16, data = data)
+summary(linear_mod)
+
+#The confidence interval of the model 
+confint(linear_mod)
+
+#Assumption of linear regression // https://www.statology.org/linear-regression-assumptions/
+
+#linearity of the data - Residual vs Fitted plot
+plot(linear_mod, 1) 
+#the residuals are not randomly scattered around the center line of zero
+#seems the variance is not constant
+#error should not be approx normally distributed
+
+
+#independence of the predictors// there is no correlation between the residuals, e.g. the residuals are independent
+#perform Durbin-Watson test//https://www.statology.org/durbin-watson-test-r/
+durbinWatsonTest(linear_mod)
+#p-value is 0. Since this p-value is less than 0.05, we can reject the null hypothesis and conclude that the residuals in this regression model are autocorrelated
+
+
+# residuals errors have constant variance - Homoscedasticity
+plot(linear_mod, 3)
+#seems we have heteroscedasticity - the results of the analysis become hard to trust/  to declare that a term in the model is statistically significant, when in fact it is not.
+#heteroscedasticity. This means that the variability in the response is changing as the predicted value increases. observations with larger errors will have more pull or influence on the fitted model
+#common sol is to calculate log or square root transformation/ formula_mod14 still have heteroscedasticity
+#We can also use the Non- Constant Error Variance (NVC) Test
+ncvTest(linear_mod)
+
+#normality - residuals are normally distributed
+#q-q plot/ quantile-quantile plot/ to determine whether or not the residuals of a model follow a normal distribution
+#If the points on the plot roughly form a straight diagonal line, then the normality assumption is met
+#we also can use formal statistical tests like Shapiro-Wilk, Kolmogorov-Smironov, Jarque-Barre, or D’Agostino-Pearson / these tests are sensitive to large sample sizes
+plot(linear_mod, 2)
+#check distribution of the residuals
+hist(residuals(linear_mod), col = "steelblue")
+#left skewed
+
+
+#independence of observations
+#identify influential observations
+#Residuals vs. Leverage Plot - cook's distance //https://www.statology.org/residuals-vs-leverage-plot/
+#to the extent to which the coefficients in the regression model would change if a particular observation was removed from the dataset.
+plot(linear_mod, 4)
+#there are influential points/ Influential observations could indicate that the model you specified does not provide a good fit to the data
+
+#to sum up
+par(mfrow = c(2, 2))
+plot(linear_mod)
+
+#Multicollinearity analysis// https://www.statology.org/multicollinearity-regression/
+#if we have highly correlated variable with each other, multicollinearity is likely to be a problem
+#main goals of regression analysis is to isolate the relationship between each predictor variable and the response variable
+#when we run a regression analysis, we interpret each regression coefficient as the mean change in the response variable, assuming all of the other predictor variables in the model are held constant
+#The precision of the coefficient estimates are reduced, which makes the p-values unreliable. This makes it difficult to determine which predictor variables are actually statistically significant.
+#variance inflation factor (VIF)//http://www.sthda.com/english/articles/39-regression-model-diagnostics/160-multicollinearity-essentials-and-vif-in-r/#:~:text=For%20a%20given%20predictor%20(p,one%20(absence%20of%20multicollinearity).
+car::vif(linear_mod)
+
+
+###### GLM / https://www.statology.org/interpret-glm-output-in-r/
+
+########################## Assumption glm 
+#// https://www.youtube.com/watch?v=XGhGeWRFw2Y&ab_channel=StatsTree
+
+####Assumption about the structure
+#reponse (y) is a continuous variable
+#(y) is linearly related to x's   plot 1/ residuals vs predicted ****
+
+####Assumption about the residuals
+#normality of the residuals/errors N(0,sigma)  plot 2/q-q plot ***
+#residuals errors have constant variance - Homoscedasticity  sigma=sigma plot 1/ residuals vs predicted ****
+#independence of the errors/residuals cov(Ei,Ej)=0 plot 1/ residuals vs predicted ****
+#non-collinearity of the predictors / independence of observations: cov(xi,xj)=0 plot4 (cook's distance: [check if a particular observation has influence on the final result])
+
+
+#################Gaussian
+#GLM with gaussian family
+gauss_mod <- glm(formula = formula16 , data = data, family = "gaussian")
+
+
+#Calculating residuals
+residuals <- resid(gauss_mod)
+
+#Residual Plot fitted vs residuals
+plot(fitted(gauss_mod), residuals)
+
+#Q-q plot and density plot
+qqnorm(residuals)
+plot(density(residuals))
+
+par(mfrow = c(2, 2))
+plot(gauss_mod)
+
+#Multicollinearity
+car::vif(gauss_mod)
+
+########################## Gamma
+
+#training the model gamma
+gamma_mod = glm(
+  formula = formula16,
+  family = Gamma, 
+  data = data)
+
+summary(gamma_mod)
+#glm gamma_full AIC 468
+#GLM Gamma formula1 AIC 525
+#GLM Gamma formula2 AIC 466
+#GLM Gamma formula4 AIC 624.29
+
+#Plotting the 4 graphs necessary for assumption check
+par(mfrow = c(2, 2))
+plot(gamma_mod)
+
+#Checking for multicollinearity
+car::vif(gamma_mod)
+
+
+##################### Inverse gaussian
+#Inverse Gauss AIC 486
+
+inv_mod = glm(
+  formula = formula16,
+  family = inverse.gaussian, 
+  data = data)
+
+summary(inv_mod)
+
+#Plotting the 4 graphs necessary for assumption check
+par(mfrow = c(2, 2))
+plot(inv_mod)
+
+#Checking for multicollinearity
+car::vif(inv_mod)
+
+################## PCA
+#//https://www.datacamp.com/tutorial/pca-analysis-r //https://www.r-bloggers.com/2016/02/principal-component-analysis-using-r/
+#https://www.analyticsvidhya.com/blog/2016/03/pca-practical-guide-principal-component-analysis-python/
+#model applying PCA
+pca <- prcomp(data[,c(3:6)], center = TRUE,scale. = TRUE)
+
+summary(pca) #Importance of components
+attributes(pca)
+
+pca$scale #use for normalization
+
+#extracting the new features
+x <- pca$x
+
+#joining the whole data
+data_pca <- data.frame(data[,c(1:2)], x[,c(1:4)], data[,c("Total_loans")] )
+
+#rename column
+colnames(data_pca)
+data_pca <- rename(
+  data_pca, 
+  Total_loans = "data...c..Total_loans...")
+#,Date = "data...c.1.1..")
+
+#formulas pca
+formula_pca1 = Total_loans ~ Cash  + PC1 + PC2 + PC3 + PC4
+formula_pca2 = Total_loans ~ Cash  + PC2 + PC3 + PC4
+formula_pca3 = Total_loans ~ PC1 + PC2 + PC3 + PC4 + PC5
+
+############gamma + pca
+#training model
+gamma_mod_pca = glm(
+  formula = formula_pca2,
+  family = Gamma, 
+  data = data_pca)
+
+summary(gamma_mod_pca)
+
+#Plotting the 4 graphs necessary for assumption check
+par(mfrow = c(2, 2))
+plot(gamma_mod_pca)
+
+#Checking for multicollinearity
+car::vif(gamma_mod_pca)
+
+#########inverse gaussian + pca
+inv_mod_pca = glm(
+  formula = formula_pca1,
+  family = inverse.gaussian, 
+  data = data_pca)
+
+summary(inv_mod_pca)
+
+#Plotting the 4 graphs necessary for assumption check
+par(mfrow = c(2, 2))
+plot(inv_mod_pca)
+
+#Checking for multicollinearity
+car::vif(inv_mod_pca)
+
+
+
+
+####### hypotesis test
+
+#Coefficient P-values significance
+#https://www.statology.org/multiple-linear-regression/
+#https://www.statology.org/multiple-linear-regression-r/
+
+
+######################### for count data
 ############ poisson model
 
 pois_mod = glm(
@@ -326,14 +548,6 @@ com_model$nloptr$iterations
 
 
 
-#################### double Poisson Model
-
-
-#################### Gamma-count Model
-
-
-
-
 ################### references
 
 #http://cursos.leg.ufpr.br/rmcd/applications.html - 
@@ -343,3 +557,6 @@ com_model$nloptr$iterations
 # https://www.rdocumentation.org/packages/DGLMExtPois/versions/0.2.0/topics/glm.CMP  - com-poisson
 
 
+################### references Daniel distribution
+#https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
+#https://www.scribbr.com/statistics/akaike-information-criterion/
