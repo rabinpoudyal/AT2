@@ -249,17 +249,14 @@ The models performed for this task include Multiple Linear Regression and Genera
 Multiple Linear Regression (MLR) is a statistical technique utilised to discover the relationship between the response variable (total loans) and the explanatory variables. lm() functions in R were performed to achieve the best fit for the models for this task. The terms of inclusion vary depending on their performance after being fitted. This approach was performed to see if it would fit the data well and produce a viable result.
 
 MLR follows five assumptions, and any violated assumption could potentially result in the unreliability of the result (Statology, 2021).
+
 The five assumptions of MLR: 
 
-Linear relationship: Relationship between the response and explanatory variables must be linear
-
-No multicollinearity: Explanatory variables should not have high correlation with each other
-
-Independence: Explanatory variables must be independent
-
-Homoscedasticity: Residuals must have constant variance
-
-Normally distributed: The residuals must be normally distributed
+- Linear relationship: Relationship between the response and explanatory variables must be linear
+- No multicollinearity: Explanatory variables should not have high correlation with each other
+- Independence: Explanatory variables must be independent
+- Homoscedasticity: Residuals must have constant variance
+- Normally distributed: The residuals must be normally distributed
 
 Despite having a total of 17 different formulas for fittings, only 1 model had a low multicollinearity score due to their independent nature. However, this model cannot be selected due to the incompleteness of the chosen explanatory variables, resulting in its inability to answer the research question well. The other models, including the full model (Total_loans ~ Mean_price + Cash + dwellings_number + Unemployment_rate + total_earnings), did not meet the assumptions of MLR.
 
@@ -332,24 +329,23 @@ plot(linear_mod)
 
 
 
-Generalised Linear Model Approach
+#### Generalised Linear Model Approach \
+
 As the residuals for MLR did not meet some of the assumptions, the alternative is to use the Generalised Linear Model (GLM). Just like the normal linear regression, GLM also has the objective of observing the relationship between the –continuous– response and explanatory variables, but via a link function. 
+
 The assumptions in GLM are:
 
-The response variable is a continuous variable
-
-The transformed response variable is linearly related to its feature variables
-
-Error is normally distributed and variance is constant (homoscedastic)
-
-Independence of residuals
-
-No collinearity between predictors
+- The response variable is a continuous variable
+- The transformed response variable is linearly related to its feature variables
+- Error is normally distributed and variance is constant (homoscedastic)
+- Independence of residuals
+- No collinearity between predictors
 
 
 Several families in GLM can be utilised to execute the models, such as gaussian (the default one), inverse gaussian, gamma, and some other families. Gaussian is one of the most used ones. Yet sometimes despite the response variable being continuous, the normal distribution assumption is not met. In addition, there are times when the response can only take nonnegative values, and the variance is not constant. According to a paper by University of Tartu, other distributions such as gamma and inverse gaussian might be better suited in such scenarios.
 
-GLM with Gaussian Family
+#### GLM with Gaussian Family \
+
 Using the full formula, the VIF values (to detect multicollinearity) exceed the threshold, which is 5. In fact, 4 out of 5 predictors have VIF values bigger than 5, indicating high multicollinearity, which could lead to a wrong interpretation in the significance of the variables.
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left'}
 #GLM with gaussian family
@@ -357,18 +353,18 @@ gauss_mod <- glm(formula = formula2 , data = data, family = "gaussian")
 
 
 #Calculating residuals
-residuals <- resid(gauss_mod)
+#residuals <- resid(gauss_mod)
 
 #Residual Plot fitted vs residuals
-plot(fitted(gauss_mod), residuals)
+# plot(fitted(gauss_mod), residuals)
 
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left'}
 
 #Q-q plot and density plot
-qqnorm(residuals)
-plot(density(residuals))
+#qqnorm(residuals)
+#plot(density(residuals))
 
 ```
 
@@ -378,19 +374,20 @@ par(mfrow = c(2, 2))
 plot(gauss_mod)
 
 #Multicollinearity
-car::vif(gauss_mod)
+#car::vif(gauss_mod)
 ```
 
 
-GLM with Gamma Family
+#### GLM with Gamma Family \
+
 Similar to GLM with the Gaussian family, most of the VIF values for this model also exceed the threshold, indicating high multicollinearity.
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left', fig.width=5, fig.height=5}
 gamma_mod = glm(
   formula = formula2,
   family = Gamma, 
   data = data)
 
-summary(gamma_mod)
+#summary(gamma_mod)
 #glm gamma_full AIC 468
 #GLM Gamma formula1 AIC 525
 #GLM Gamma formula2 AIC 466
@@ -405,16 +402,16 @@ car::vif(gamma_mod)
 ```
 
 
+#### GLM with Inverse Gaussian Family \
 
-GLM with Inverse Gaussian Family
 Similar to the previous two models, the multicollinearity for this model is high, violating the non-collinearity between predictors assumption.
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left', fig.width=5, fig.height=5}
 inv_mod = glm(
   formula = formula2,
   family = inverse.gaussian, 
   data = data)
 
-summary(inv_mod)
+#summary(inv_mod)
 
 #Plotting the 4 graphs necessary for assumption check
 par(mfrow = c(2, 2))
@@ -424,51 +421,43 @@ plot(inv_mod)
 car::vif(inv_mod)
 ```
 
-PCA
+#### PCA \
+
 To take advantage of the full model while having low multicollinearity simultaneously, Principal Component Analysis (PCA) was applied to achieve this ideal. PCA combines correlated variables into a set of uncorrelated variables. Although the principal components obtained after compressing correlated variables require further interpretation to figure out which original variables are related to each principal component, they perform pretty well in removing the correlation between feature variables.
 
-PCA Model Selected
+#### PCA Model Selected \
 
 formula_pca3 = Total_loans ~ PC1 + PC2 + PC3 + PC4 + PC5
 
 Since in PCA it is unclear what each principal component constitutes, trying to find the correlation plot between each component with the original explanatory variable helps clear the confusion regarding the content. PC1 is correlated to total earnings, dwelling numbers, mean price, and cash, indicating the existence of all these variables in PC1.
 
-In addition, there is no collinearity between each principal component, allowing this model to include all the original variables without having any multicollinearity.
 
-
-The plots produced by this model show a little bias in the residuals, as evident from the Residuals vs. Fitted graph. However, the band is still mostly horizontal around the 0 line, signifying that the variance of the residuals is constant. In addition, despite the thick-tailed graph in the Q-Q plot, there is no evidence to reject the normality of the model. According to the Scale-Location graph, the red line is also roughly horizontal, indicating the homoscedasticity assumption is satisfied, and the residuals also show no clear pattern. There is also no data point outside the Cook’s distance, indicating no outliers having the ability to impact much of the result. No assumptions are violated by this model according to the plots.
-
-
-From the statistical analysis standpoint, it can be inferred that all principal components of the model are significant, as evident from the p-value result. The low value of the residual deviance further indicates that the model built is a good fit. As there is no evidence to reject this model, it is safe to proceed using this model to answer the hypothesis tests.
-
-
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left'}
 #model applying PCA
 pca <- prcomp(data[,c(2:6)], center = TRUE,scale. = TRUE)
 
-summary(pca) #Importance of components
-attributes(pca)
+# #summary(pca) #Importance of components
+# #attributes(pca)
 
-pca$scale #use for normalization
+# pca$scale #use for normalization
 
-#extracting the new features
-x <- pca$x
+# #extracting the new features
+# x <- pca$x
 
-#joining the whole data
-#data_pca <- data.frame(data[,c(1:2)], x[,c(1:4)], data[,c("Total_loans")] )
+# #joining the whole data
+# #data_pca <- data.frame(data[,c(1:2)], x[,c(1:4)], data[,c("Total_loans")] )
 
-data_pca <- data.frame(x[,c(1:5)], data[,c("Total_loans")] )
+# data_pca <- data.frame(x[,c(1:5)], data[,c("Total_loans")] )
 
-#delete outliers rows 101 102 113
-#data_pca <- data_pca[-c(101,102,113),]
+# #delete outliers rows 101 102 113
+# #data_pca <- data_pca[-c(101,102,113),]
 
-#rename column
-colnames(data_pca)
-data_pca <- rename(
-  data_pca, 
-  Total_loans = "data...c..Total_loans...")
-  #,Date = "data...c.1.1..")
+# #rename column
+# # colnames(data_pca)
+# data_pca <- rename(
+#   data_pca, 
+#   Total_loans = "data...c..Total_loans...")
+#   #,Date = "data...c.1.1..")
 
 # correlations between the principal components and the original variables
 #//https://online.stat.psu.edu/stat505/lesson/11/11.4
@@ -479,6 +468,18 @@ full_data <- data.frame(data[,c(2:6)], x[,c(1:5)])
 corr_matrix = cor(full_data)
 corrplot(corr_matrix, method = 'number', type = 'lower', insig='blank',
          addCoef.col ='black', number.cex = 0.8, order = 'AOE', diag=FALSE)
+```
+
+In addition, there is no collinearity between each principal component, allowing this model to include all the original variables without having any multicollinearity.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left'}
+#Checking for multicollinearity
+car::vif(gamma_mod_pca)
+```
+
+The plots produced by this model show a little bias in the residuals, as evident from the Residuals vs. Fitted graph. However, the band is still mostly horizontal around the 0 line, signifying that the variance of the residuals is constant. In addition, despite the thick-tailed graph in the Q-Q plot, there is no evidence to reject the normality of the model. According to the Scale-Location graph, the red line is also roughly horizontal, indicating the homoscedasticity assumption is satisfied, and the residuals also show no clear pattern. There is also no data point outside the Cook’s distance, indicating no outliers having the ability to impact much of the result. No assumptions are violated by this model according to the plots.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 formula_pca3 = Total_loans ~ PC1 + PC2 + PC3 + PC4 + PC5 # selected formula
 
@@ -488,29 +489,31 @@ gamma_mod_pca = glm(
   family = Gamma, 
   data = data_pca)
 
-summary(gamma_mod_pca)
+#summary(gamma_mod_pca)
 
 #Plotting the 4 graphs necessary for assumption check
 par(mfrow = c(2, 2))
 plot(gamma_mod_pca)
 
-#Checking for multicollinearity
-car::vif(gamma_mod_pca)
-
 #########inverse gaussian + pca
-inv_mod_pca = glm(
-  formula = formula_pca3,
-  family = inverse.gaussian, 
-  data = data_pca)
-
-summary(inv_mod_pca)
+# inv_mod_pca = glm(
+#   formula = formula_pca3,
+#   family = inverse.gaussian, 
+#   data = data_pca)
 
 #Plotting the 4 graphs necessary for assumption check
-par(mfrow = c(2, 2))
-plot(inv_mod_pca)
+# par(mfrow = c(2, 2))
+# plot(inv_mod_pca)
 
 #Checking for multicollinearity
-car::vif(inv_mod_pca)
+# car::vif(inv_mod_pca)
+```
+
+From the statistical analysis standpoint, it can be inferred that all principal components of the model are significant, as evident from the p-value result. The low value of the residual deviance further indicates that the model built is a good fit. As there is no evidence to reject this model, it is safe to proceed using this model to answer the hypothesis tests.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+summary(gamma_mod_pca)
+
 ```
 
 
