@@ -1,5 +1,5 @@
 ---
-title: "AT2 Project"
+title: "New house loans in Australia & Interest rate"
 author: "Group Lambda"
 date: "`r Sys.Date()`"
 output:
@@ -29,7 +29,7 @@ source("rmd_import.R")
 6. 24591214 | Daniel Alexander 
 7. 13745144 | Chau Tran
 
-Word count: ~ 5100 words
+Word count: 4485 words
 \newpage
 
 ## Executive Summary 
@@ -40,12 +40,12 @@ Housing price is a complicated statistic, especially in today’s dynamic world 
 
 ## Table Of Content
 
-1. Introduction \
+1. Introduction 
 2. Methodology \
     2.1 Data acquisition \
     2.2. Exploratory Data Analysis and Visualisations \
     2.3. Hypothesis \
-    2.4. Modelling \
+    2.4. Modelling 
 3. Results
 4. Discussion
 5. Conclusion
@@ -69,27 +69,29 @@ This project is aimed at researching further into those economic factors such as
 Before one can start with the analysis part, they need a key ingredient to start with i.e. data. Data can be acquired through various sources keeping in mind the integrity of the source and the richness of information because that eventually affects the analysis and decisions made for critical businesses. We collected most of the datasets from the Australian Bureau of Statistics (abs.gov.au) website and the Reserve Bank of Australia website, which satisfies all the prerequisites of richness, reliability, safety and truthiness of data. More details about each dataset are presented in the below table: 
 
 
-| Number | Name of data set                              | Name of variable it represents         | Response/ Explanatory variable | Date range            | Number of entries | Research question |
-| :----: | :-------------------------------------------- | :------------------------------------- | :----------------------------: | :-------------------- | :---------------: | :---------------: |
-|   1    | New loan commitments for total housing        | New loan commitments for total housing |     Response variable (y)      | 01/06/2004-01/06/2022 |        218        |      1 and 2      |
-|   2    | Cash rate - Reserve Bank of Australia         | Cash rate                              |   Explanatory variable (x1)    | 01/09/2011-01/08/2022 |        122        |      1 and 2      |
-|   3a   | Mean price of residential dwellings Australia | Mean price of residential dwellings    |   Explanatory variable (x2)    | 01/09/2011-01/03/2022 |        44         |         2         |
-|   3b   | Mean price of residential dwellings Australia | Number of residential dwellings        |   Explanatory variable (x3)    | 01/09/2011-01/03/2022 |        44         |         2         |
-|   4    | Residential Property Price Index              | Residential Property Price Index       |   Explanatory variable (x4)    | 01/09/2003-01/12/2021 |        75         |         2         |
-|   5    | Average Weekly Earnings                       | Average Weekly Earnings                |   Explanatory variable (x5)    | 01/11/1994-01/05/2022 |        57         |         2         |
-|   6    | Labour Force Australia                        | Unemployment rate                      |   Explanatory variable (x6)    | 01/02/1978-01/07/2022 |        535        |         2         |
-|   7    | Months                                        | Date                                   |              N/A               | 01/11/2011-01/06/2022 |        129        |      1 and 2      |
+|  S.N  | Name of data set                              | Name of variable it represents         | Response/ Explanatory variable | Date range            | Number of entries | Research question |
+| :---: | :-------------------------------------------- | :------------------------------------- | :----------------------------: | :-------------------- | :---------------: | :---------------: |
+|   1   | New loan commitments for total housing        | New loan commitments for total housing |     Response variable (y)      | 01/06/2004-01/06/2022 |        218        |      1 and 2      |
+|   2   | Cash rate - Reserve Bank of Australia         | Cash rate                              |   Explanatory variable (x1)    | 01/09/2011-01/08/2022 |        122        |      1 and 2      |
+|  3a   | Mean price of residential dwellings Australia | Mean price of residential dwellings    |   Explanatory variable (x2)    | 01/09/2011-01/03/2022 |        44         |         2         |
+|  3b   | Mean price of residential dwellings Australia | Number of residential dwellings        |   Explanatory variable (x3)    | 01/09/2011-01/03/2022 |        44         |         2         |
+|   4   | Residential Property Price Index              | Residential Property Price Index       |   Explanatory variable (x4)    | 01/09/2003-01/12/2021 |        75         |         2         |
+|   5   | Average Weekly Earnings                       | Average Weekly Earnings                |   Explanatory variable (x5)    | 01/11/1994-01/05/2022 |        57         |         2         |
+|   6   | Labour Force Australia                        | Unemployment rate                      |   Explanatory variable (x6)    | 01/02/1978-01/07/2022 |        535        |         2         |
+|   7   | Months                                        | Date                                   |              N/A               | 01/11/2011-01/06/2022 |        129        |      1 and 2      |
 
 ### Data Manipulation and Summaries
 The six datasets representing seven variables (New loan commitments for total housing, Cash rate, Mean price of residential dwellings, Number of residential dwellings, Residential Property Price Index, Average Weekly Earnings and Unemployment rate) are merged under one dataset called 'merged_dataset' using the relevant and essential r libraries from the mentioned packages which includes ‘readxl’, ‘tidyverse’, ‘lubridate’, ‘imputeTS’, ‘corrplot’, ‘datasets’, ‘DGLMExtPois’, ‘bbmle’, etc.
 
 The missing values in the dataset are handled by using two techniques namely ‘Weighted Moving Average’ and ‘Top to Bottom’. The former uses the mean which is calculated keeping equal weights for all observations in the moving average window, whereas the latter helps by filling the previous or next entry and is useful in common output format where values are not repeated.
 
-## 2.2 Exploratory Data Analysis and Visualisations
+\newpage
 
-## Correlation Matrix
+### 2.2 Exploratory Data Analysis and Visualisations
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+#### Correlation Matrix
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4, fig.align='left'}
 # correlations of the variables
 corr_matrix <- cor(clean_dataset[, c(2:8)])
 corrplot(corr_matrix,
@@ -98,7 +100,9 @@ corrplot(corr_matrix,
 )
 ```
 \
-Fig.1 Correlation Matrix
+<div align="center">
+\textbf { Fig.1 Correlation Matrix}
+</div>
 
 This graph above depicts the correlation coefficients between all the possible 
 pairs of variables available in the cleaned dataset. Correlation coefficients are a 
@@ -129,7 +133,9 @@ q4 <- ggplot(clean_dataset, aes(y = total_earnings, Date)) +
 plot_grid(q1, q2, q3, q4)
 ```
 \
-Fig.2 Cash, Total earnings, Unemployment rate, and Total loans over time
+<div align="center">
+\textbf { Fig.2 Cash, Total earnings, Unemployment rate, and Total loans over time}
+</div>
 
 Continuous fall in cash rate was because of the tightened lending standards 
 and the continuous fallout from the banking royal commission and stringent 
@@ -150,7 +156,7 @@ improves the chances of an individual getting loans easily (Figure 2).
 
 #### Effect of Cash Rate on Total Number of loans
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=4, fig.align='center'}
 clean_dataset %>%
   ggplot(aes(Cash, Total_loans )) + geom_point(mapping = aes(x =Cash , y = Total_loans)) +geom_smooth(color ="Blue") +labs(title = "Decreasing Cash Rate resulting in increased \nnumber of loans from 2012-2022 ")
 ```
@@ -163,7 +169,7 @@ rate resulting in higher loan payments.
 
 #### Number of loans vs Household Earnings
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=3, fig.align='center'}
 clean_dataset %>%
   ggplot(aes(total_earnings, Total_loans )) + geom_point(mapping = aes(x =total_earnings , y = Total_loans, color = Date)) +geom_smooth(color ="Red") +labs(title = "Increasing Total Earnings results in increase \nin number of loans from 2012-2022 ")
 
@@ -176,11 +182,11 @@ leading to high number of total loans.
 
 #### Effect of mean price and price index on total number of loans
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=4, fig.height=3, fig.align='center'}
 ggplot(clean_dataset, aes(x=Mean_price, y=Total_loans)) + geom_point() + labs(title="Mean price vs total loans", x="Mean price", y="Total loans")
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=4, fig.height=3, fig.align='center'}
 ggplot(clean_dataset, aes(x=price_index, y=Total_loans)) + geom_point() + labs(title="Total Loans vs price index", x="Price Index", y="Number of Total Loans")
 ```
 
@@ -189,11 +195,11 @@ Mean price and price index have a positive correlation coefficient of 0.86 and
 as evident from increasing mean price of dwellings and the price index pushes
 customers to take help from bank, increasing the total number of loans.
 
-### Relationship between the explanatory variables.
+### Relationship between the explanatory variables
 
 #### Cash Rate and Mean Price 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=4, fig.height=3, fig.align='center'}
 clean_dataset %>%
   ggplot(aes(Cash, Mean_price)) +
   geom_point(size = 2, alpha = 2) + labs(title = 'Relationship of Cash rate and Mean Price', subtitle = 'November 2011 - June 2022') +
@@ -206,7 +212,7 @@ There appears to be a strong negative relationship between the cash rate and the
 
 #### Total Earnings and Dwellings Number
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=4, fig.height=3, fig.align='center'}
 clean_dataset %>%
   ggplot(aes(total_earnings, dwellings_number)) +
   geom_point(size = 2, alpha = 2) + labs(title = 'Relationship of Total earnings and Number of Residential Dwellings', subtitle = 'November 2011 - June 2022') +
@@ -218,7 +224,7 @@ We can see that there is quite a clear upward slope showing a strong positive re
 
 #### Total Earnings and Mean Price of dwellings
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=4, fig.height=3, fig.align='center'}
 clean_dataset %>%
   ggplot(aes(total_earnings, Mean_price)) +
   geom_point(size = 2, alpha = 2) + labs(title = 'Relationship of Total earnings and Mean price of residential dwellings', subtitle = 'November 2011 - June 2022') +
@@ -227,6 +233,8 @@ clean_dataset %>%
 ```
 
 This also happens when we compare the relationship between the total earnings and the mean price of residential dwellings. When the demand for buying houses get higher due to the increase in their earnings, it will drive the price of houses to increase accordingly. The upward slope in this graph clearly represents this positive relationship (correlation coefficient = 0.93).
+
+\newpage
 
 ## 2.3 Hypothesis
 One of the ways for the government to control the money flow is by controlling the cash rate, it is called the monetary policy. The Reserve Bank of Australia ( RBA ) (2017) suggests that most of the loans in Australia can be influenced easily by the change of cash rate. Moreover a research held by JP Morgan in 2017 indicated that a decrease in interest rate will result in an increase in consumer spending. Hence, we hypothesise that the level of the cash rate affects the total loans committed by Australians.
@@ -241,64 +249,82 @@ The models performed for this task include Multiple Linear Regression and Genera
 Multiple Linear Regression (MLR) is a statistical technique utilised to discover the relationship between the response variable (total loans) and the explanatory variables. lm() functions in R were performed to achieve the best fit for the models for this task. The terms of inclusion vary depending on their performance after being fitted. This approach was performed to see if it would fit the data well and produce a viable result.
 
 MLR follows five assumptions, and any violated assumption could potentially result in the unreliability of the result (Statology, 2021).
-The five assumptions of MLR:
-Linear relationship		: Relationship between the response and explanatory variables must be linear
-No multicollinearity		: Explanatory variables should not have high correlation with each other
-Independence		: Explanatory variables must be independent
-Homoscedasticity		: Residuals must have constant variance
-Normally distributed	: The residuals must be normally distributed
+The five assumptions of MLR: 
+
+Linear relationship: Relationship between the response and explanatory variables must be linear
+
+No multicollinearity: Explanatory variables should not have high correlation with each other
+
+Independence: Explanatory variables must be independent
+
+Homoscedasticity: Residuals must have constant variance
+
+Normally distributed: The residuals must be normally distributed
+
 Despite having a total of 17 different formulas for fittings, only 1 model had a low multicollinearity score due to their independent nature. However, this model cannot be selected due to the incompleteness of the chosen explanatory variables, resulting in its inability to answer the research question well. The other models, including the full model (Total_loans ~ Mean_price + Cash + dwellings_number + Unemployment_rate + total_earnings), did not meet the assumptions of MLR.
 
 ### Multilinear regression
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=4, fig.height=3, fig.align='left'}
 linear_mod <- lm(formula2, data = data)
-summary(linear_mod)
+# summary(linear_mod)
 
 #The confidence interval of the model 
-confint(linear_mod)
+# confint(linear_mod)
 
 #Assumption of linear regression // https://www.statology.org/linear-regression-assumptions/
 
 #linearity of the data - Residual vs Fitted plot
-plot(linear_mod, 1) 
+# plot(linear_mod, 1) 
 #the residuals are not randomly scattered around the center line of zero
 #seems the variance is not constant
 #error should not be approx normally distributed
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=4, fig.height=3, fig.align='left'}
 #independence of the predictors// there is no correlation between the residuals, e.g. the residuals are independent
 #perform Durbin-Watson test//https://www.statology.org/durbin-watson-test-r/
-durbinWatsonTest(linear_mod)
+# durbinWatsonTest(linear_mod)
 #p-value is 0. Since this p-value is less than 0.05, we can reject the null hypothesis and conclude that the residuals in this regression model are autocorrelated
 
 
 # residuals errors have constant variance - Homoscedasticity
-plot(linear_mod, 3)
+# plot(linear_mod, 3)
 #seems we have heteroscedasticity - the results of the analysis become hard to trust/  to declare that a term in the model is statistically significant, when in fact it is not.
-#heteroscedasticity. This means that the variability in the response is changing as the predicted value increases. observations with larger errors will have more pull or influence on the fitted model
+#heteroscedasticity. This means that the variability in the response is changing as the predicted value increases. observations with larger errors will have more
+# pull or influence on the fitted model
 #common sol is to calculate log or square root transformation/ formula_mod14 still have heteroscedasticity
 #We can also use the Non- Constant Error Variance (NVC) Test
-ncvTest(linear_mod)
+# ncvTest(linear_mod)
 
 #normality - residuals are normally distributed
 #q-q plot/ quantile-quantile plot/ to determine whether or not the residuals of a model follow a normal distribution
 #If the points on the plot roughly form a straight diagonal line, then the normality assumption is met
-#we also can use formal statistical tests like Shapiro-Wilk, Kolmogorov-Smironov, Jarque-Barre, or D’Agostino-Pearson / these tests are sensitive to large sample sizes
-plot(linear_mod, 2)
-#check distribution of the residuals
-hist(residuals(linear_mod), col = "steelblue")
+#we also can use formal statistical tests like Shapiro-Wilk, 
+# Kolmogorov-Smironov, 
+#Jarque-Barre, or D’Agostino-Pearson / 
+# these tests are sensitive to large sample sizes
+# plot(linear_mod, 2)
+
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE, fig.align='left'}
+# hist(residuals(linear_mod), col = "steelblue")
 #left skewed
 
 
 #independence of observations
 #identify influential observations
 #Residuals vs. Leverage Plot - cook's distance //https://www.statology.org/residuals-vs-leverage-plot/
-#to the extent to which the coefficients in the regression model would change if a particular observation was removed from the dataset.
-plot(linear_mod, 4)
-#there are influential points/ Influential observations could indicate that the model you specified does not provide a good fit to the data
+#to the extent to which the coefficients in the 
+#regression model would change if a particular observation was removed from the dataset.
+# plot(linear_mod, 4)
+#there are influential points/ Influential observations could indicate that 
+# the model you specified does not provide a good fit to the data
 
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE, fig.align='left'}
 #to sum up
 par(mfrow = c(2, 2))
 plot(linear_mod)
@@ -309,16 +335,23 @@ plot(linear_mod)
 Generalised Linear Model Approach
 As the residuals for MLR did not meet some of the assumptions, the alternative is to use the Generalised Linear Model (GLM). Just like the normal linear regression, GLM also has the objective of observing the relationship between the –continuous– response and explanatory variables, but via a link function. 
 The assumptions in GLM are:
+
 The response variable is a continuous variable
+
 The transformed response variable is linearly related to its feature variables
+
 Error is normally distributed and variance is constant (homoscedastic)
+
 Independence of residuals
+
 No collinearity between predictors
+
+
 Several families in GLM can be utilised to execute the models, such as gaussian (the default one), inverse gaussian, gamma, and some other families. Gaussian is one of the most used ones. Yet sometimes despite the response variable being continuous, the normal distribution assumption is not met. In addition, there are times when the response can only take nonnegative values, and the variance is not constant. According to a paper by University of Tartu, other distributions such as gamma and inverse gaussian might be better suited in such scenarios.
 
 GLM with Gaussian Family
 Using the full formula, the VIF values (to detect multicollinearity) exceed the threshold, which is 5. In fact, 4 out of 5 predictors have VIF values bigger than 5, indicating high multicollinearity, which could lead to a wrong interpretation in the significance of the variables.
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left'}
 #GLM with gaussian family
 gauss_mod <- glm(formula = formula2 , data = data, family = "gaussian")
 
@@ -329,9 +362,17 @@ residuals <- resid(gauss_mod)
 #Residual Plot fitted vs residuals
 plot(fitted(gauss_mod), residuals)
 
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left'}
+
 #Q-q plot and density plot
 qqnorm(residuals)
 plot(density(residuals))
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='left'}
 
 par(mfrow = c(2, 2))
 plot(gauss_mod)
@@ -399,8 +440,6 @@ The plots produced by this model show a little bias in the residuals, as evident
 
 
 From the statistical analysis standpoint, it can be inferred that all principal components of the model are significant, as evident from the p-value result. The low value of the residual deviance further indicates that the model built is a good fit. As there is no evidence to reject this model, it is safe to proceed using this model to answer the hypothesis tests.
-
-
 
 
 
@@ -539,30 +578,30 @@ From PC1 it seems like earning level, housing availability, cash rate, and the m
 As new loans' commitment fluctuated over the years, it is critical to investigate what are the driving factors in each major downturn and upturn. Surprisingly, we found how significant Australian government policies & stimulus, in combination with Australian Prudential Regulation Authority (APRA) can influence the housing market. Other economic and social factors such as the increasing in apartment ownerships, the limited information recorded about the off-the-plan purchases of apartments, the growth in population that we do not have a clear measurement method and data to include in our model, which can potentially explain the accuracy of our model. 
 
 
-**2014-2016: End of mining boom**
+**2014-2016: End of mining boom**\
 The high demand for coal and iron due to rapid urbanisation and industrialization of emerging economies in Asia (especially China) led to the mining boom in Australian mining industry before 2014 (Country Report Australia: economy slows down | Atradius, 2015). However, since early 2014, China experienced an economic slowdown causing a significant drop in commodity price, massive employee’s layoffs, fall in incomes and low growth in nominal GDP in Australia (Country Report Australia: economy slows down | Atradius, 2015). Meanwhile, other related sectors serving the mining industry also felt the pain (Country Report Australia: economy slows down | Atradius, 2015). This economic downturn put a negative impact on people spending behaviours leading to a lower demand for housing, which declined the housing prices (Country Report Australia: economy slows down | Atradius, 2015). In response to the ripple effect from China’s economy, the Reserve Bank of Australia (RBA) cut interest rates to 2.5% in late 2013 to compensate and to ensure the sustainable growth in the economy (Lorkin, 2015; Kent, 2016).
 
-1.  Decrease in housing affordability since the price was too high
+1.  Decrease in housing affordability since the price was too high \
 The low level of interest rate since 2013 attracted more home buyers coming back to the market. However, when the demand was too high, house prices started to jump considerably in 2014 and remained very high during 2015 and 2016. It was reported in July 2015 that house prices in Sydney rose 22.9% in just 12 months and the median price hit $1m for the first time (Jabour, 2015). While in Melbourne, house prices were reported to  jump 14.5% over the past year in January 2016 (Zhou, 2016). These extraordinary and skyrocketing prices raised concerns about the housing affordability crisis since people even struggled to find affordable rental accommodation, let alone chances to purchase a house, especially for low-income people or first home buyers (Jabour, 2015; Zhou, 2016).
 
-2.  Increase in the supply and off-the-plan purchase for apartments
+2.  Increase in the supply and off-the-plan purchase for apartments \
 Although the housing affordability was getting worse, the demand for new housing remained high and increased by 40% (around 50,000 new dwellings) mostly due to strong population growth, which is an important factor that we did not consider in our report (Kohler & Merwe, 2015). The transition into higher-density housing like apartments was the solution for this. High-density apartments accounted for one-third of all residential building approvals during this time, which made it more affordable for people to own a house since apartments are less expensive than larger, lower-density housing (Shoory, 2016). However, due to the limited information recorded about the off-the-plan purchases of apartments, new loan commitments declined during this period despite the sharp increase in the building approvals for higher-density housing(Leal et al., 2017). These off-plan purchases were made well before construction started or during the construction, thus, there were settlements lags for around one to three years (Leal et al., 2017). Meanwhile, loan commitments are only counted until settlement, implying that new loan commitments are likely to underestimate the actual home buyers’ buying behaviours (Leal et al., 2017).  As a result, loan commitments increased from 2016 to 2017 reflecting the degree of the underestimation of those previous years. The lengthy and complicated planning process as well as the difficulty in infrastructure funding and provision also explain why the increasing supply of apartments could not respond effectively to the high demand for buying houses in the short run, thus, the housing prices in the market still remained at a high level through these years (Kohler & Merwe, 2015). 
  
-3. Decline in interstate migration
+3. Decline in interstate migration \
 Another driver for the decline in home loan commitments is the decline in interstate migration (Leal et al., 2017). People tend to move interstate to find a more affordable house as well as lower living expenses. However, the benefits of interstate migration were reduced due to the improvements in technology and the changes in working nature, which makes it more insecure for employment and income (Leal et al., 2017). Moreover, there were an increasing number of apartments built in the areas that were close to employment opportunities, public transports and shopping centres in capital cities like Sydney and Melbourne, which helped home buyers to decide where they wanted to live instead of having to move interstates.
 
-4. Changes in foreign investment policy
+4. Changes in foreign investment policy \
 Stronger foreign investment rules enforced by the Commonwealth Government is also a crucial factor to explain about the decrease in loan commitments (Government strengthens the foreign investment framework | Treasury Ministers, 2015). Since 01/12/2015, the residential real estate functions have been transferred to the Australian Taxation Office, who is responsible for identifying possible breaches (Government strengthens the foreign investment framework | Treasury Ministers, 2015). Stricter penalties ($127,500 or three-years imprisonment for individuals and $637,500 for companies) were also been implemented to pursue foreign investors who breach the rules (Government strengthens the foreign investment framework | Treasury Ministers, 2015). Foreign investors are not allowed to purchase existing residential properties according to the Australia’s foreign regime (Government strengthens the foreign investment framework | Treasury Ministers, 2015). In addition to this, large Australian banks also ceased lending to foreign buyers seeking mortgages (Shoory, 2016). 
 
-**2017-2018**
+**2017-2018**\
 Although in the year of 2017 Australian economy was doing great with a growth of 2.8% annually, low interest rates, rises in infrastructure investment for both public and private sectors, the housing market showed a slowdown especially in major cities. This credits to the stricter bank regulations and policies on how investors can approach interest-only loans (Stevenson, 2018).
 
 The shrinkage in national house prices is the result of tighter lending standards from major banks (The Australian Financial Review, 2019). After peaking in 2017, major cities including Sydney and Melbourne showed sharp decreases at 11.1% and 7.2% respectively as the response to financial regulator Apra’s stricting of lending conditions (Zhou, 2019).
 
-**2019: Housing bounce back**
+**2019: Housing bounce back**\
 The relaxation in lending standards, along with interest rates cut in the previous year, has triggered more borrowing capacity and allowed many people to get closer to the housing market (Taulaga, 2020). 
 
-**2021-2022 Covid era**
+**2021-2022 Covid era**\
 Different Bureau of Statistics data suggest that the reason for house price hike in recent months are first home buyers whose commitment advanced 9.3% in just December 2020 alone with the total number of 15,205 buyers, ending with 56.6% annual increase (ABC News, 2021). With Covid restriction and many uncertainties, many people turn to buying homes as a guaranteed investment. 
 
 Sharp increases in new loans were driven by many factors such as stimulus measures from the government of Home Builder grant ($25,000), low interest rate combined with multiple lockdowns and remote working, pushing the demand for larger accommodations (Burke, 2022). 
@@ -575,7 +614,7 @@ At the same time, Asabere and Huffman (2007) mentioned that it is very common fo
 Limited number of input variables to analyse might be too subjective to produce a conclusion with high credibility. In this project, we only studied the cash rates, mean price of residential dwellings, average income and unemployment to determine the significance of these variables towards new home buyers’ confidence in committing mortgages. As discussed above, there are other factors such as government policies, housing availability, economic downturn, population and migrations etc. also show high association with the rise and fall of new home loans.
 
 
-## Stakeholder analysis and project outcomes
+### Stakeholder analysis and project outcomes
 Understanding the importance of cash rate, unemployment rate, mean price and average income and their effects on home buyers’ confidence will help banks, property developers / construction companies, home buyers and sellers, and government to perform informative decision making given the changes of these explanatory factors. 
  
 A brief outline of potential benefits stakeholders can take away from this project:
@@ -649,7 +688,7 @@ Zhou, N. (2019, January 2). Australian house prices falling at fastest rate in a
 ## Appendix
 
 ```{r eval=FALSE}
-#install packages: run once
+#install packages
 
 #install.packages('readxl')
 #install.packages('tidyverse')
@@ -660,20 +699,15 @@ Zhou, N. (2019, January 2). Australian house prices falling at fastest rate in a
 #install.packages("DGLMExtPois")
 #install.packages("bbmle")
 
-library("readxl")
-library("tidyverse")
-library("lubridate")
-library("imputeTS")
-library("corrplot")
-library("readr")
-library("dplyr")
-library("ggplot2")
-library("cowplot")
-
-#load(ggplot2)
-#require(ggplot)
-require(ggplot2)
-
+library(readxl)
+library(tidyverse)
+library(lubridate)
+library(imputeTS)
+library(corrplot)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
 library(tidyverse)
 library(magrittr)
 library(GGally)
@@ -682,13 +716,10 @@ library(datasets)
 library(COMPoissonReg)
 library(DGLMExtPois)
 library(bbmle)
-
 library(car)
 
-
-
 # set working directory.
-path = "C:/Users/amedi/OneDrive/Escritorio/UTS/STDS_statistical_thinking_for_data_science/AT2/project_report/"
+path = "C:/"
 setwd(path) 
 getwd()
 
@@ -722,7 +753,6 @@ dwellings_mean_price <- dwellings_mean_price[,c(1,37)]
 residential_dwellings_number <- residential_dwellings_number[,c(1,46)]
 earnings <- earnings[,c(1,9)]
 property_price_index <- property_price_index[,c(1,10)]
-
 
 #rename columns
 colnames(loan_commitments)
@@ -761,7 +791,6 @@ data_months$Date <- dmy(data_months$Date)
 cash_rate_data$Date <- dmy(cash_rate_data$Date)
 loan_commitments$Date <- dmy(loan_commitments$Date)
 
-
 # Merge dataframes
 merge_dataset <- left_join(data_months, cash_rate_data, by='Date') %>%
   left_join(., labour_force_data, by='Date') %>%
@@ -770,7 +799,6 @@ merge_dataset <- left_join(data_months, cash_rate_data, by='Date') %>%
   left_join(., earnings, by='Date') %>%
   left_join(., property_price_index, by='Date') %>%
   left_join(., loan_commitments, by='Date')
-
 
 #dataset skipping missing values
 missing_val_dataset <- merge_dataset
@@ -782,8 +810,6 @@ missing_val_dataset <- filter(missing_val_dataset, Date >= "2012-01-01")
 
 # outliers analysis
 summary(missing_val_dataset) #dataset skipping missing values
-
-
 
 ##################################### filling missing values
 
@@ -801,7 +827,6 @@ merge_dataset <- merge_dataset %>% fill(Mean_price)
 merge_dataset <- merge_dataset %>% fill(dwellings_number)
 merge_dataset <- merge_dataset %>% fill(total_earnings)
 merge_dataset <- merge_dataset %>% fill(price_index)
-
 
 #using data from 2012
 merge_dataset <- filter(merge_dataset, Date >= "2012-01-01")
@@ -844,43 +869,66 @@ plot_grid(q1, q2, q3, q4)
 
 # ggplot - relationship with total loans
 
-ggplot(clean_dataset, aes(x=Mean_price, y=Total_loans)) + geom_point() + labs(title="Mean price vs total loans", x="Mean price", y="Total loans") + theme_classic()
-
-ggplot(clean_dataset, aes(x=Mean_price, y=dwellings_number)) + geom_point() + labs(title="Mean price vs total loans", x="Mean price of dwellings", y="Total loans") + theme_classic()
-
-ggplot(clean_dataset, aes(x=dwellings_number, y=Total_loans)) + geom_point() + labs(title="Total Loans vs dwellings number", x="Number of Dwellings", y="Total Loans") + theme_classic()
-
-ggplot(clean_dataset, aes(x=price_index, y=Total_loans)) + geom_point() + labs(title="Total Loans vs price index", x="Price Index", y="Number of Total Loans") + theme_classic()
+ggplot(clean_dataset, aes(x=Mean_price, y=Total_loans)) + geom_point() + 
+labs(title="Mean price vs total loans", x="Mean price", y="Total loans") 
++ theme_classic()
+ggplot(clean_dataset, aes(x=Mean_price, y=dwellings_number)) + 
+geom_point() + 
+labs(title="Mean price vs total loans", 
+x="Mean price of dwellings", y="Total loans") 
++ theme_classic()
+ggplot(clean_dataset, aes(x=dwellings_number, y=Total_loans)) + 
+geom_point() + labs(title="Total Loans vs dwellings number", 
+x="Number of Dwellings", y="Total Loans") 
++ theme_classic()
+ggplot(clean_dataset, aes(x=price_index, 
+y=Total_loans)) + geom_point() + 
+labs(title="Total Loans vs price index", 
+x="Price Index", y="Number of Total Loans") + theme_classic()
 
 ############ ggplot - relationship for hypothesis test
 
 #Relationship between Cash rate and Total loans
 clean_dataset %>%
-  ggplot(aes(Cash, Total_loans )) + geom_point(mapping = aes(x =Cash , y = Total_loans)) +geom_smooth(color ="Blue") +labs(title = "Decreasing Cash Rate resulting in increased \nnumber of loans from 2012-2022 ")
+  ggplot(aes(Cash, Total_loans )) + 
+  geom_point(mapping = aes(x =Cash , y = Total_loans)) +
+  geom_smooth(color ="Blue") +
+  labs(title = "Decreasing Cash Rate resulting in increased 
+  number of loans from 2012-2022 ")
 
 #Relationship between total earnings and Total loans
 clean_dataset %>%
-  ggplot(aes(total_earnings, Total_loans )) + geom_point(mapping = aes(x =total_earnings , y = Total_loans, color = Date)) +geom_smooth(color ="Red") +labs(title = "Increasing Total Earnings results in increase \nin number of loans from 2012-2022 ")
-
+  ggplot(aes(total_earnings, Total_loans )) + 
+  geom_point(mapping = aes(x =total_earnings , 
+  y = Total_loans, color = Date)) +geom_smooth(color ="Red") +
+  labs(title = "Increasing Total Earnings results in increase 
+  in number of loans from 2012-2022 ")
 
 #Relationship between cash rate and mean price
 clean_dataset %>%
   ggplot(aes(Cash, Mean_price)) +
-  geom_point(size = 2, alpha = 2) + labs(title = 'Relationship of Cash rate and Mean Price', subtitle = 'November 2011 - June 2022') +
-  xlab("Cash rate (months)") +
+  geom_point(size = 2, alpha = 2) + 
+  labs(title = 'Relationship of Cash rate and Mean Price', 
+  
   ylab("Mean price")
 
 #Relationship between total earnings and dwelling numbers
 clean_dataset %>%
   ggplot(aes(total_earnings, dwellings_number)) +
-  geom_point(size = 2, alpha = 2) + labs(title = 'Relationship of Total earnings and Number of Residential Dwellings', subtitle = 'November 2011 - June 2022') +
+  geom_point(size = 2, alpha = 2) + 
+  labs(title = 'Relationship of Total earnings and 
+  Number of Residential Dwellings', 
+  subtitle = 'November 2011 - June 2022') +
   xlab("Total earnings (months)") +
   ylab("Dwellings number")
 
 #Relationship between total earnings and mean price
 clean_dataset %>%
   ggplot(aes(total_earnings, Mean_price)) +
-  geom_point(size = 2, alpha = 2) + labs(title = 'Relationship of Total earnings and Mean price of residential dwellings', subtitle = 'November 2011 - June 2022') +
+  geom_point(size = 2, alpha = 2) + 
+  labs(title = 'Relationship of Total earnings and Mean 
+  price of residential dwellings', 
+  subtitle = 'November 2011 - June 2022') +
   xlab("Total earnings (months)") +
   ylab("Mean Price")
 
@@ -892,15 +940,17 @@ data <- clean_dataset
 # correlation - distributions
 ggpairs(data)
 
-#view columns names
-colnames(data)
-
 #formulas - approaches for the models
-formula1 = Total_loans ~ Mean_price + price_index + Cash + dwellings_number + Unemployment_rate + total_earnings
-formula2 = Total_loans ~ Mean_price + Cash + dwellings_number + Unemployment_rate + total_earnings #full
-formula3 = Total_loans ~ Cash + Unemployment_rate + total_earnings + Mean_price + price_index
-formula4 = Total_loans ~ Mean_price + Cash + dwellings_number + Unemployment_rate
-formula5 = Total_loans ~ Mean_price + Cash + dwellings_number + total_earnings
+formula1 = Total_loans ~ Mean_price + price_index + 
+  Cash + dwellings_number + Unemployment_rate + total_earnings
+formula2 = Total_loans ~ Mean_price + Cash + 
+  dwellings_number + Unemployment_rate + total_earnings #full
+formula3 = Total_loans ~ Cash + 
+  Unemployment_rate + total_earnings + Mean_price + price_index
+formula4 = Total_loans ~ Mean_price + 
+  Cash + dwellings_number + Unemployment_rate
+formula5 = Total_loans ~ Mean_price + 
+  Cash + dwellings_number + total_earnings
 formula6 = Total_loans ~ Mean_price + Cash + dwellings_number
 formula7 = Total_loans ~ Mean_price + Cash
 formula8 = Total_loans ~ Cash + dwellings_number
@@ -909,12 +959,12 @@ formula10 = Total_loans ~ Cash
 formula11 = Total_loans ~ dwellings_number
 formula12 = Total_loans ~ total_earnings
 formula13 = Total_loans ~ Unemployment_rate
-formula14 = log(Total_loans) ~ Mean_price + Cash + dwellings_number + total_earnings
+formula14 = log(Total_loans) ~ Mean_price + 
+  Cash + dwellings_number + total_earnings
 formula15 = Total_loans ~ Mean_price + Cash + Unemployment_rate
 formula16 = Total_loans ~ Cash + Unemployment_rate
-formula17 = Total_loans ~ Mean_price + Cash  + Unemployment_rate + total_earnings
-
-#//formulas to highlight formula2 and formula16
+formula17 = Total_loans ~ Mean_price + 
+  Cash  + Unemployment_rate + total_earnings
 
 ####### multilinear regression
 
@@ -924,7 +974,7 @@ summary(linear_mod)
 #The confidence interval of the model 
 confint(linear_mod)
 
-#Assumption of linear regression // https://www.statology.org/linear-regression-assumptions/
+#Assumption of linear regression
 
 #linearity of the data - Residual vs Fitted plot
 plot(linear_mod, 1) 
@@ -933,24 +983,33 @@ plot(linear_mod, 1)
 #error should not be approx normally distributed
 
 
-#independence of the predictors// there is no correlation between the residuals, e.g. the residuals are independent
-#perform Durbin-Watson test//https://www.statology.org/durbin-watson-test-r/
+#independence of the predictors// there is no correlation between the residuals,
+#  e.g. the residuals are independent
+#perform Durbin-Watson test
 durbinWatsonTest(linear_mod)
-#p-value is 0. Since this p-value is less than 0.05, we can reject the null hypothesis and conclude that the residuals in this regression model are autocorrelated
+#p-value is 0. Since this p-value is less than 0.05, we can reject the null hypothesis and 
+# conclude that the residuals in this regression model are autocorrelated
 
 
 # residuals errors have constant variance - Homoscedasticity
 plot(linear_mod, 3)
-#seems we have heteroscedasticity - the results of the analysis become hard to trust/  to declare that a term in the model is statistically significant, when in fact it is not.
-#heteroscedasticity. This means that the variability in the response is changing as the predicted value increases. observations with larger errors will have more pull or influence on the fitted model
-#common sol is to calculate log or square root transformation/ formula_mod14 still have heteroscedasticity
+#seems we have heteroscedasticity - the results of the analysis become hard to trust/  to
+#  declare that a term in the model is statistically significant, when in fact it is not.
+#heteroscedasticity. This means that the variability in the response is changing as the 
+# predicted value increases. observations with 
+# larger errors will have more pull or influence on the fitted model
+#common sol is to calculate log or square root transformation/ formula_mod14 still have 
+# heteroscedasticity
 #We can also use the Non- Constant Error Variance (NVC) Test
 ncvTest(linear_mod)
 
 #normality - residuals are normally distributed
-#q-q plot/ quantile-quantile plot/ to determine whether or not the residuals of a model follow a normal distribution
-#If the points on the plot roughly form a straight diagonal line, then the normality assumption is met
-#we also can use formal statistical tests like Shapiro-Wilk, Kolmogorov-Smironov, Jarque-Barre, or D’Agostino-Pearson / these tests are sensitive to large sample sizes
+#q-q plot/ quantile-quantile plot/ to determine whether or not the residuals of a model 
+# follow a normal distribution
+#If the points on the plot roughly form a straight diagonal line, then the normality 
+# assumption is met
+#we also can use formal statistical tests like Shapiro-Wilk, Kolmogorov-Smironov, Jarque-Barre, 
+# or D’Agostino-Pearson / these tests are sensitive to large sample sizes
 plot(linear_mod, 2)
 #check distribution of the residuals
 hist(residuals(linear_mod), col = "steelblue")
@@ -959,44 +1018,50 @@ hist(residuals(linear_mod), col = "steelblue")
 
 #independence of observations
 #identify influential observations
-#Residuals vs. Leverage Plot - cook's distance //https://www.statology.org/residuals-vs-leverage-plot/
-#to the extent to which the coefficients in the regression model would change if a particular observation was removed from the dataset.
+#Residuals vs. Leverage Plot - cook's distance
+#to the extent to which the coefficients in the regression model would change if a 
+# particular observation was removed from the dataset.
 plot(linear_mod, 4)
-#there are influential points/ Influential observations could indicate that the model you specified does not provide a good fit to the data
+#there are influential points/ Influential observations could indicate that the model 
+# you specified does not provide a good fit to the data
 
 #to sum up
 par(mfrow = c(2, 2))
 plot(linear_mod)
 
-#Multicollinearity analysis// https://www.statology.org/multicollinearity-regression/
-#if we have highly correlated variable with each other, multicollinearity is likely to be a problem
-#main goals of regression analysis is to isolate the relationship between each predictor variable and the response variable
-#when we run a regression analysis, we interpret each regression coefficient as the mean change in the response variable, assuming all of the other predictor variables in the model are held constant
-#The precision of the coefficient estimates are reduced, which makes the p-values unreliable. This makes it difficult to determine which predictor variables are actually statistically significant.
-#variance inflation factor (VIF)//http://www.sthda.com/english/articles/39-regression-model-diagnostics/160-multicollinearity-essentials-and-vif-in-r/#:~:text=For%20a%20given%20predictor%20(p,one%20(absence%20of%20multicollinearity).
+#Multicollinearity analysis
+#if we have highly correlated variable with each other, multicollinearity is 
+# likely to be a problem
+#main goals of regression analysis is to isolate the relationship between each 
+# predictor variable and the response variable
+#The precision of the coefficient estimates are reduced, which makes the 
+# p-values unreliable. This makes it difficult to determine which 
+# predictor variables are actually 
+# statistically significant.
+#variance inflation factor (VIF)
 car::vif(linear_mod)
 
 
-###### GLM / https://www.statology.org/interpret-glm-output-in-r/
+########################## GLM 
 
 ########################## Assumption glm 
-#// https://www.youtube.com/watch?v=XGhGeWRFw2Y&ab_channel=StatsTree
-
 ####Assumption about the structure
 #reponse (y) is a continuous variable
-#(y) is linearly related to x's   plot 1/ residuals vs predicted ****
+#(y) is linearly related to x's   plot 1/ residuals vs predicted 
 
 ####Assumption about the residuals
-#normality of the residuals/errors N(0,sigma)  plot 2/q-q plot ***
-#residuals errors have constant variance - Homoscedasticity  sigma=sigma plot 1/ residuals vs predicted ****
-#independence of the errors/residuals cov(Ei,Ej)=0 plot 1/ residuals vs predicted ****
-#non-collinearity of the predictors / independence of observations: cov(xi,xj)=0 plot4 (cook's distance: [check if a particular observation has influence on the final result])
-
+#normality of the residuals/errors N(0,sigma)  plot 2/q-q plot
+#residuals errors have constant variance - Homoscedasticity  sigma=sigma 
+# plot 1/ residuals vs predicted 
+#independence of the errors/residuals cov(Ei,Ej)=0 plot 1/ residuals 
+# vs predicted
+#non-collinearity of the predictors / independence of observations: 
+# cov(xi,xj)=0 plot4 (cook's distance: 
+#[check if a particular observation has influence on the final result])
 
 #################Gaussian
 #GLM with gaussian family
 gauss_mod <- glm(formula = formula16 , data = data, family = "gaussian")
-
 
 #Calculating residuals
 residuals <- resid(gauss_mod)
@@ -1023,10 +1088,6 @@ gamma_mod = glm(
   data = data)
 
 summary(gamma_mod)
-#glm gamma_full AIC 468
-#GLM Gamma formula1 AIC 525
-#GLM Gamma formula2 AIC 466
-#GLM Gamma formula4 AIC 624.29
 
 #Plotting the 4 graphs necessary for assumption check
 par(mfrow = c(2, 2))
@@ -1037,8 +1098,6 @@ car::vif(gamma_mod)
 
 
 ##################### Inverse gaussian
-#Inverse Gauss AIC 486
-
 inv_mod = glm(
   formula = formula16,
   family = inverse.gaussian, 
@@ -1054,42 +1113,32 @@ plot(inv_mod)
 car::vif(inv_mod)
 
 ################## PCA
-#//https://www.datacamp.com/tutorial/pca-analysis-r //https://www.r-bloggers.com/2016/02/principal-component-analysis-using-r/
-#https://www.analyticsvidhya.com/blog/2016/03/pca-practical-guide-principal-component-analysis-python/
 #model applying PCA
 pca <- prcomp(data[,c(2:6)], center = TRUE,scale. = TRUE)
 
 summary(pca) #Importance of components
 attributes(pca)
-
 pca$scale #use for normalization
 
 #extracting the new features
 x <- pca$x
 
 #joining the whole data
-#data_pca <- data.frame(data[,c(1:2)], x[,c(1:4)], data[,c("Total_loans")] )
-
 data_pca <- data.frame(x[,c(1:5)], data[,c("Total_loans")] )
-
 
 #rename column
 colnames(data_pca)
 data_pca <- rename(
   data_pca, 
   Total_loans = "data...c..Total_loans...")
-#,Date = "data...c.1.1..")
+
 
 # correlations between the principal components and the original variables
-#//https://online.stat.psu.edu/stat505/lesson/11/11.4
-#//https://reader.elsevier.com/reader/sd/pii/S0169743901002039?token=6588695C5B8FF0C572ADC0B7AE588ACC1A2D170382E23C05124DEB9FFA67F85EC4129732D75758328800CE44D1682D93&originRegion=us-east-1&originCreation=20220928072020
-#https://www.sciencedirect.com/science/article/pii/S0169743901002039
 full_data <- data.frame(data[,c(2:6)], x[,c(1:5)])
 
 corr_matrix = cor(full_data)
 corrplot(corr_matrix, method = 'number', type = 'lower', insig='blank',
          addCoef.col ='black', number.cex = 0.8, order = 'AOE', diag=FALSE)
-
 
 #formulas pca
 formula_pca1 = Total_loans ~ Cash  + PC1 + PC2 + PC3 + PC4
@@ -1127,47 +1176,5 @@ plot(inv_mod_pca)
 
 #Checking for multicollinearity
 car::vif(inv_mod_pca)
-
-
-
-####### hypotesis test
-
-#Coefficient P-values significance
-#https://www.statology.org/multiple-linear-regression/
-#https://www.statology.org/multiple-linear-regression-r/
-
-
-######################### for count data
-############ poisson model
-
-pois_mod = glm(
-  formula = formula_mod2,
-  family = poisson, 
-  data = data)
-
-summary(pois_mod)
-
-#estimated variance against the mean
-plot(log(fitted(pois_mod)),log((data$Total_loans-fitted(pois_mod))^2),
-     xlab=expression(hat(mu)),
-     ylab=expression((y-hat(mu))^2),
-     pch=20,col="blue")
-abline(0,1) ## 'variance = mean' line
-
-#Dispersion parameter 
-dp = sum(residuals(pois_mod,type ="pearson")^2)/pois_mod$df.residual
-dp #under-dispersion
-
-# other way to extract the dispersion parameter manually - declare the function:
-dfun <- function(object) {
-  with(object,sum((weights * residuals^2)[weights > 0])/df.residual)
-}
-
-
-#check how much the coefficient estimations are affected by
-summary(pois_mod,dispersion = dp) 
-
-
-
 
 ```
